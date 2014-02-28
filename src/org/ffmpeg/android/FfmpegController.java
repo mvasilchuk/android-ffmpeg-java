@@ -611,13 +611,13 @@ out.avi – create this output file. Change it as you like, for example using an
 		if (startTime != null)
 		{
 			cmd.add(FFMPEGArg.ARG_STARTTIME);
-			cmd.add(startTime);
+			cmd.add(trimNumberString(startTime));
 		}
 		
 		if (duration != null)
 		{
 			cmd.add(FFMPEGArg.ARG_DURATION);
-			cmd.add(duration);
+			cmd.add(trimNumberString(duration));
 		}
 		
 		cmd.add("-i");
@@ -656,13 +656,13 @@ out.avi – create this output file. Change it as you like, for example using an
 		if (mediaIn.startTime != null)
 		{
 			cmd.add("-ss");
-			cmd.add(mediaIn.startTime);
+			cmd.add(trimNumberString(mediaIn.startTime));
 		}
 		
 		if (mediaIn.duration != null)
 		{
 			cmd.add("-t");
-			cmd.add(mediaIn.duration);
+			cmd.add(trimNumberString(mediaIn.duration));
 		}
 		
 		cmd.add("-i");
@@ -701,13 +701,13 @@ out.avi – create this output file. Change it as you like, for example using an
 		if (mediaIn.startTime != null)
 		{
 			cmd.add("-ss");
-			cmd.add(mediaIn.startTime);
+			cmd.add(trimNumberString(mediaIn.startTime));
 		}
 		
 		if (mediaIn.duration != null)
 		{
 			cmd.add("-t");
-			cmd.add(mediaIn.duration);
+			cmd.add(trimNumberString(mediaIn.duration));
 		}
 		
 		cmd.add("-vn");
@@ -748,13 +748,13 @@ out.avi – create this output file. Change it as you like, for example using an
 		if (mediaIn.startTime != null)
 		{
 			cmd.add("-ss");
-			cmd.add(mediaIn.startTime);
+			cmd.add(trimNumberString(mediaIn.startTime));
 		}
 		
 		if (mediaIn.duration != null)
 		{
 			cmd.add("-t");
-			cmd.add(mediaIn.duration);
+			cmd.add(trimNumberString(mediaIn.duration));
 		}
 		
 		
@@ -784,13 +784,13 @@ out.avi – create this output file. Change it as you like, for example using an
 		if (mediaIn.startTime != null)
 		{
 			cmd.add("-ss");
-			cmd.add(mediaIn.startTime);
+			cmd.add(trimNumberString(mediaIn.startTime));
 		}
 		
 		if (mediaIn.duration != null)
 		{
 			cmd.add("-t");
-			cmd.add(mediaIn.duration);
+			cmd.add(trimNumberString(mediaIn.duration));
 		}
 		
 
@@ -837,13 +837,13 @@ out.avi – create this output file. Change it as you like, for example using an
 				if (mdesc.startTime != null)
 				{
 					cmd.add("-ss");
-					cmd.add(mdesc.startTime);
+					cmd.add(trimNumberString(mdesc.startTime));
 				}
 				
 				if (mdesc.duration != null)
 				{
 					cmd.add("-t");
-					cmd.add(mdesc.duration);
+					cmd.add(trimNumberString(mdesc.duration));
 				}
 				
 				/*
@@ -923,13 +923,13 @@ out.avi – create this output file. Change it as you like, for example using an
 		if (mdesc.startTime != null)
 		{
 			cmd.add("-ss");
-			cmd.add(mdesc.startTime);
+			cmd.add(trimNumberString(mdesc.startTime));
 		}
 		
 		if (mdesc.duration != null)
 		{
 			cmd.add("-t");
-			cmd.add(mdesc.duration);
+			cmd.add(trimNumberString(mdesc.duration));
 		}
 					
 		cmd.add("-f");
@@ -1026,13 +1026,13 @@ out.avi – create this output file. Change it as you like, for example using an
 		if (mediaIn.startTime != null)
 		{
 			cmd.add(FFMPEGArg.ARG_STARTTIME);
-			cmd.add(mediaIn.startTime);
+			cmd.add(trimNumberString(mediaIn.startTime));
 		}
 		
 		if (mediaIn.duration != null)
 		{
 			cmd.add(FFMPEGArg.ARG_DURATION);
-			cmd.add(mediaIn.duration);
+			cmd.add(trimNumberString(mediaIn.duration));
 		}
 
 		cmd.add("-i");
@@ -1278,6 +1278,21 @@ out.avi – create this output file. Change it as you like, for example using an
 	                Log.e(TAG,"error reading shell slog",ioe);
 	              }
 	    }
+	}
+	
+	   
+    /*
+     * There is a bug in ffmpeg on android where if you have more than 9 digits
+     * total on either side of the decimal, it fails.
+     * 
+     * 1234.5678   this is fine
+     * 1234.56789  fails
+     * 1.2345678   this is fine
+     * 1.23456789  fails
+     * 
+     */
+	static private String trimNumberString(String s) {
+	    return s.substring(0, Math.min(s.length(), 7));
 	}
 }
 

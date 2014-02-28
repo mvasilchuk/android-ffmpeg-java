@@ -118,9 +118,9 @@ public class SoxController {
 		cmd.add("16");
 		cmd.add(outFile);
 		cmd.add("trim");
-		cmd.add(start+"");
-		if( length != -1 )
-			cmd.add(length+"");
+		cmd.add(formatDouble(start));
+		if( length != -1 ) 
+			cmd.add(formatDouble(length));
 
 		try {
 			int rc = execSox(cmd, callback);
@@ -171,11 +171,11 @@ public class SoxController {
 		cmd.add(outFile);
 		cmd.add("fade");
 		cmd.add(type);
-		cmd.add(fadeInLength+"");
+		cmd.add(formatDouble(fadeInLength));
 		if(stopTime != -1)
-			cmd.add(stopTime+"");
+			cmd.add(formatDouble(stopTime));
 		if(fadeOutLength != -1)
-			cmd.add(fadeOutLength+"");
+			cmd.add(formatDouble(fadeOutLength));
 
 		try {
 			int rc = execSox(cmd, callback);
@@ -350,5 +350,20 @@ public class SoxController {
 				Log.e(TAG, "error reading shell slog", ioe);
 			}
 		}
+	}
+	
+    /*
+     * There is a bug in sox on android where if you have more than 9 digits
+     * total on either side of the decimal, trimming fails. presumably other
+     * functions will fail too
+     * 
+     * 1234.5678   this is fine
+     * 1234.56789  fails
+     * 1.2345678   this is fine
+     * 1.23456789  fails
+     * 
+     */
+	static String formatDouble(double f) {
+	    return String.format("%.8f", f).substring(0, 8);  // this will fail if clip longer than 31 years
 	}
 }
