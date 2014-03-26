@@ -364,6 +364,6 @@ public class SoxController {
      * 
      */
 	static String formatDouble(double f) {
-	    return String.format("%.8f", f).substring(0, 8);  // this will fail if clip longer than 31 years
+	    return String.format(Locale.US, "%.8f", f).substring(0, 8);  // this will fail if clip longer than 31 years
 	}
 }
