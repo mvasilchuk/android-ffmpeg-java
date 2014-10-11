@@ -1,2 +1,5 @@
+# Intellij
+*.iml
+
 # gradle
 build
