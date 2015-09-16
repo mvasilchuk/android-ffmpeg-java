@@ -98,50 +98,103 @@ public class SoxController {
 		return sc.length;
 	}
 
-	/**
-	 * Discard all audio not between start and length (length = end by default)
-	 * sox <path> -e signed-integer -b 16 outFile trim <start> <length>
-	 * @param start
-	 * @param length (optional)
-	 * @return path to trimmed audio
-	 */
-	public String trimAudio(String path, double start, double length) throws IOException {
-		ArrayList<String> cmd = new ArrayList<String>();
+    /**
+     * Discard all audio not between start and length (length = end by default)
+     * sox <path> -e signed-integer -b 16 outFile trim <start> <length>
+     * @param start
+     * @param length (optional)
+     * @return path to trimmed audio
+     */
+    public String trimAudio(String path, double start, double length) throws IOException {
+        ArrayList<String> cmd = new ArrayList<String>();
 
-		File file = new File(path);
-		String outFile = file.getCanonicalPath() + "_trimmed.wav";
-		cmd.add(soxBin);
-		cmd.add(path);
-		cmd.add("-e");
-		cmd.add("signed-integer");
-		cmd.add("-b");
-		cmd.add("16");
-		cmd.add(outFile);
-		cmd.add("trim");
-		cmd.add(formatDouble(start));
-		if( length != -1 ) 
-			cmd.add(formatDouble(length));
+        File file = new File(path);
+        String outFile = file.getCanonicalPath() + "_trimmed.wav";
+        cmd.add(soxBin);
+        cmd.add(path);
+        cmd.add("-e");
+        cmd.add("signed-integer");
+        cmd.add("-b");
+        cmd.add("16");
+        cmd.add(outFile);
+        cmd.add("trim");
+        cmd.add(formatDouble(start));
+        if( length != -1 )
+            cmd.add(formatDouble(length));
 
-		try {
-			int rc = execSox(cmd, callback);
-			if( rc != 0 ) {
-				Log.e(TAG, "trimAudio receieved non-zero return code!");
-				outFile = null;
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        try {
+            int rc = execSox(cmd, callback);
+            if( rc != 0 ) {
+                Log.e(TAG, "trimAudio receieved non-zero return code!");
+                outFile = null;
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-		if (file.exists())
-			return outFile;
-		else
-			return null;
-		
-	}
+        if (file.exists())
+            return outFile;
+        else
+            return null;
+
+    }
+
+    /**
+     * Delay audio to start  and trim it at length (length = end by default)
+     * sox <path> -e signed-integer -b 16 outFile delay start start trim <start> <length>
+     * @param start
+     * @param length (optional)
+     * @return path to trimmed audio
+     */
+    public String delayAudio(String path, double start, double length) throws IOException {
+        ArrayList<String> cmd = new ArrayList<String>();
+
+        // a negative start value means we need to add that amount of delay before the sample
+        double startDelay = 0;
+        if (start < 0) {
+            startDelay = Math.abs(start);
+        }
+        File file = new File(path);
+        String outFile = file.getCanonicalPath() + "_delayed.wav";
+        cmd.add(soxBin);
+        cmd.add(path);
+        cmd.add("-e");
+        cmd.add("signed-integer");
+        cmd.add("-b");
+        cmd.add("16");
+        cmd.add(outFile);
+        cmd.add("delay");
+        cmd.add(formatDouble(startDelay)); // left channel
+        cmd.add(formatDouble(startDelay)); // right channel
+//        cmd.add("trim"); // FIXME how does trim interact with delay?
+//        cmd.add(formatDouble(0));
+//        if( length != -1 )
+//            cmd.add(formatDouble(length));
+
+        try {
+            int rc = execSox(cmd, callback);
+            if( rc != 0 ) {
+                Log.e(TAG, "delayAudio receieved non-zero return code!");
+                outFile = null;
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        if (file.exists())
+            return outFile;
+        else
+            return null;
+
+    }
 
 	/**
 	 * Fade audio file

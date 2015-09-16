@@ -343,7 +343,11 @@ public class FfmpegController {
 			{
 				cmd.add("-s");
 				cmd.add(out.width + "x" + out.height);
+				// FIXME testing
+				//cmd.add("-vf \"transpose=1");
+				//cmd.add(out.width + "x" + out.height); // FIXME we might need to flip height and width if the image is being rotated
 			}
+
 			
 			newImagePath = imageBasePath + String.format(Locale.US, "%03d", imageCounter++) + ".jpg";
 			cmd.add(newImagePath);
