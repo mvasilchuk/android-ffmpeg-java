@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.ffmpeg.android.BinaryInstaller;
+import org.ffmpeg.android.MediaDesc;
 import org.ffmpeg.android.ShellUtils.ShellCallback;
 
 import android.content.Context;
@@ -90,9 +91,9 @@ public class SoxController {
 		try {
 			execSox(cmd, sc);
 		} catch (IOException e) {
-			Log.e("sox","error getting length ",e);
+			Log.e(TAG,"error getting length ",e);
 		} catch (InterruptedException e) {
-			Log.e("sox","error getting length",e);
+			Log.e(TAG,"error getting length",e);
 		}
 
 		return sc.length;
@@ -253,17 +254,20 @@ public class SoxController {
 	 * @param files
 	 * @return combined and mixed file (null on failure)
 	 */
-	public String combineMix(List<String> files, String outFile) {
+	public MediaDesc combineMix(List<MediaDesc> files, MediaDesc outFile) {
 		ArrayList<String> cmd = new ArrayList<String>();
 		cmd.add(soxBin);
 		cmd.add("-m");
 
-		for(String file : files) {
+		DecimalFormat df = new DecimalFormat("#.#");
+		
+		for(MediaDesc file : files) {
 			cmd.add("-v");
-			cmd.add("1.0");
-			cmd.add(file);
+			cmd.add(df.format(file.audioVolume));
+			cmd.add(file.path);
 		}
-		cmd.add(outFile);
+		
+		cmd.add(outFile.path);
 
 		try {
 			int rc = execSox(cmd, callback);
@@ -288,14 +292,19 @@ public class SoxController {
 	 * @param outFile
 	 * @return outFile or null on failure
 	 */
-	public String combine(List<String> files, String outFile) {
+	public MediaDesc combine(List<MediaDesc> files, MediaDesc outFile) {
 		ArrayList<String> cmd = new ArrayList<String>();
 		cmd.add(soxBin);
 
-		for(String file : files) {
-			cmd.add(file);
+		DecimalFormat df = new DecimalFormat("#.#");
+		
+		for(MediaDesc file : files) {
+			cmd.add("-v");
+			cmd.add(df.format(file.audioVolume));
+			cmd.add(file.path);
 		}
-		cmd.add(outFile);
+		
+		cmd.add(outFile.path);
 
 		try {
 			int rc = execSox(cmd, callback);
