@@ -685,6 +685,7 @@ out.avi – create this output file. Change it as you like, for example using an
 		
 		File fileOut = new File(outPath);
 		mediaOut.path = fileOut.getCanonicalPath();
+		mediaOut.audioVolume = mediaIn.audioVolume;
 		
 		cmd.add(mediaOut.path);
 
