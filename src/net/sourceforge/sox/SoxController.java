@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.ffmpeg.android.BinaryInstaller;
+import org.ffmpeg.android.MediaDesc;
 import org.ffmpeg.android.ShellUtils.ShellCallback;
 
 import android.content.Context;
@@ -27,6 +28,10 @@ public class SoxController {
 	private File fileBinDir;
 	private Context context;
 	private ShellCallback callback;
+
+
+	public final static DecimalFormat DECIMAL_FORMAT_VOLUME = new DecimalFormat("#.#");
+
 
 	public SoxController(Context _context, ShellCallback _callback) throws FileNotFoundException, IOException {
 		context = _context;
@@ -90,12 +95,51 @@ public class SoxController {
 		try {
 			execSox(cmd, sc);
 		} catch (IOException e) {
-			Log.e("sox","error getting length ",e);
+			Log.e(TAG,"error getting length ",e);
 		} catch (InterruptedException e) {
-			Log.e("sox","error getting length",e);
+			Log.e(TAG,"error getting length",e);
 		}
 
 		return sc.length;
+	}
+
+
+	/**
+	 * Change audio volume
+	 * sox -v volume <path> outFile
+	 * @param volume
+	 * @return path to trimmed audio
+	 */
+	public String setVolume(String inputFile, float volume, String outputFile) throws IOException {
+
+		ArrayList<String> cmd = new ArrayList<String>();
+
+		File file = new File(inputFile);
+		cmd.add(soxBin);
+		cmd.add("-v");
+		cmd.add(DECIMAL_FORMAT_VOLUME.format(volume));
+		cmd.add(inputFile);
+		cmd.add(outputFile);
+
+		try {
+			int rc = execSox(cmd, callback);
+			if( rc != 0 ) {
+				Log.e(TAG, "trimAudio receieved non-zero return code!");
+				return null;
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		if (file.exists())
+			return outputFile;
+		else
+			return null;
+
 	}
 
     /**
@@ -105,12 +149,14 @@ public class SoxController {
      * @param length (optional)
      * @return path to trimmed audio
      */
-    public String trimAudio(String path, double start, double length) throws IOException {
+    public String trimAudio(String path, double start, double length, float volume) throws IOException {
         ArrayList<String> cmd = new ArrayList<String>();
 
-        File file = new File(path);
+		File file = new File(path);
         String outFile = file.getCanonicalPath() + "_trimmed.wav";
         cmd.add(soxBin);
+		cmd.add("-v");
+		cmd.add(DECIMAL_FORMAT_VOLUME.format(volume));
         cmd.add(path);
         cmd.add("-e");
         cmd.add("signed-integer");
@@ -253,17 +299,18 @@ public class SoxController {
 	 * @param files
 	 * @return combined and mixed file (null on failure)
 	 */
-	public String combineMix(List<String> files, String outFile) {
+	public MediaDesc combineMix(List<MediaDesc> files, MediaDesc outFile) {
 		ArrayList<String> cmd = new ArrayList<String>();
 		cmd.add(soxBin);
 		cmd.add("-m");
 
-		for(String file : files) {
+		for(MediaDesc file : files) {
 			cmd.add("-v");
-			cmd.add("1.0");
-			cmd.add(file);
+			cmd.add(DECIMAL_FORMAT_VOLUME.format(file.audioVolume));
+			cmd.add(file.path);
 		}
-		cmd.add(outFile);
+		
+		cmd.add(outFile.path);
 
 		try {
 			int rc = execSox(cmd, callback);
@@ -288,14 +335,17 @@ public class SoxController {
 	 * @param outFile
 	 * @return outFile or null on failure
 	 */
-	public String combine(List<String> files, String outFile) {
+	public MediaDesc combine(List<MediaDesc> files, MediaDesc outFile) {
 		ArrayList<String> cmd = new ArrayList<String>();
 		cmd.add(soxBin);
 
-		for(String file : files) {
-			cmd.add(file);
+		for(MediaDesc file : files) {
+			cmd.add("-v");
+			cmd.add(DECIMAL_FORMAT_VOLUME.format(file.audioVolume));
+			cmd.add(file.path);
 		}
-		cmd.add(outFile);
+		
+		cmd.add(outFile.path);
 
 		try {
 			int rc = execSox(cmd, callback);
@@ -318,13 +368,12 @@ public class SoxController {
 	 * 	hh:mm:ss:ss.frac
 	 * @param seconds
 	 */
-	/*
 	public String formatTimePeriod(double seconds) {
 	
 		long milliTime = (long)(seconds * 100f);
 		Date dateTime = new Date(milliTime);
 		return String.format(Locale.US, "%s:%s.%s", dateTime.getHours(),dateTime.getMinutes(),dateTime.getSeconds());
-	}*/
+	}
 
 	public int execSox(List<String> cmd, ShellCallback sc) throws IOException,
 			InterruptedException {

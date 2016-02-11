@@ -15,7 +15,7 @@ public class MediaDesc implements Cloneable
 	public int audioChannels = -1;
 	public int audioBitrate = -1;
 	public String audioQuality;
-	public int audioVolume = -1;
+	public float audioVolume = 1.0f;
 	public String audioBitStreamFilter;
 	
 	public String path;
