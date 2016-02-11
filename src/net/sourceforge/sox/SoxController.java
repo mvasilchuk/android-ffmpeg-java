@@ -99,6 +99,47 @@ public class SoxController {
 		return sc.length;
 	}
 
+
+	/**
+	 * Change audio volume
+	 * sox -v volume <path> outFile
+	 * @param volume
+	 * @return path to trimmed audio
+	 */
+	public String setVolume(String inputFile, float volume, String outputFile) throws IOException {
+
+		DecimalFormat df = new DecimalFormat("#.#");
+
+		ArrayList<String> cmd = new ArrayList<String>();
+
+		File file = new File(inputFile);
+		cmd.add(soxBin);
+		cmd.add("-v");
+		cmd.add(df.format(volume));
+		cmd.add(inputFile);
+		cmd.add(outputFile);
+
+		try {
+			int rc = execSox(cmd, callback);
+			if( rc != 0 ) {
+				Log.e(TAG, "trimAudio receieved non-zero return code!");
+				return null;
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		if (file.exists())
+			return outputFile;
+		else
+			return null;
+
+	}
+
     /**
      * Discard all audio not between start and length (length = end by default)
      * sox <path> -e signed-integer -b 16 outFile trim <start> <length>

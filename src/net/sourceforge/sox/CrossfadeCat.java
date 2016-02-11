@@ -80,7 +80,6 @@ public class CrossfadeCat {
 		// Trim off crossfade sections from originals
 		MediaDesc trimmedThree = mFirstFile.clone();
 		trimmedThree.path = mController.trimAudio(mFirstFile.path, 0, trimLength);
-		
 		if( trimmedThree.path == null )
 			return abort();
 		
