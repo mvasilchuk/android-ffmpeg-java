@@ -45,7 +45,7 @@ public class CrossfadeCat {
 		double trimLength = length - mFadeLength;
 
 		// Obtain trimLength seconds of fade out position from the first File
-		String trimmedOne = mController.trimAudio(mFirstFile.path, trimLength, mFadeLength);
+		String trimmedOne = mController.trimAudio(mFirstFile.path, trimLength, mFadeLength, mFirstFile.audioVolume);
 		if( trimmedOne == null )
 			return abort();
 
@@ -56,7 +56,7 @@ public class CrossfadeCat {
 			return abort();
 		
 		// Get crossfade section from the second file
-		String trimmedTwo = mController.trimAudio(mSecondFile.path, 0, mFadeLength);
+		String trimmedTwo = mController.trimAudio(mSecondFile.path, 0, mFadeLength, mSecondFile.audioVolume);
 		if( trimmedTwo == null )
 			return abort();
 
@@ -79,12 +79,12 @@ public class CrossfadeCat {
 
 		// Trim off crossfade sections from originals
 		MediaDesc trimmedThree = mFirstFile.clone();
-		trimmedThree.path = mController.trimAudio(mFirstFile.path, 0, trimLength);
+		trimmedThree.path = mController.trimAudio(mFirstFile.path, 0, trimLength, 1.0f);
 		if( trimmedThree.path == null )
 			return abort();
 		
 		MediaDesc trimmedFour = mSecondFile.clone();
-		trimmedFour.path = mController.trimAudio(mSecondFile.path, mFadeLength, -1);
+		trimmedFour.path = mController.trimAudio(mSecondFile.path, mFadeLength, -1, 1.0f);
 		if( trimmedFour.path == null )
 			return abort();
 

@@ -29,6 +29,10 @@ public class SoxController {
 	private Context context;
 	private ShellCallback callback;
 
+
+	public final static DecimalFormat DECIMAL_FORMAT_VOLUME = new DecimalFormat("#.#");
+
+
 	public SoxController(Context _context, ShellCallback _callback) throws FileNotFoundException, IOException {
 		context = _context;
 		fileBinDir = context.getDir("bin",0);
@@ -108,14 +112,12 @@ public class SoxController {
 	 */
 	public String setVolume(String inputFile, float volume, String outputFile) throws IOException {
 
-		DecimalFormat df = new DecimalFormat("#.#");
-
 		ArrayList<String> cmd = new ArrayList<String>();
 
 		File file = new File(inputFile);
 		cmd.add(soxBin);
 		cmd.add("-v");
-		cmd.add(df.format(volume));
+		cmd.add(DECIMAL_FORMAT_VOLUME.format(volume));
 		cmd.add(inputFile);
 		cmd.add(outputFile);
 
@@ -147,12 +149,14 @@ public class SoxController {
      * @param length (optional)
      * @return path to trimmed audio
      */
-    public String trimAudio(String path, double start, double length) throws IOException {
+    public String trimAudio(String path, double start, double length, float volume) throws IOException {
         ArrayList<String> cmd = new ArrayList<String>();
 
-        File file = new File(path);
+		File file = new File(path);
         String outFile = file.getCanonicalPath() + "_trimmed.wav";
         cmd.add(soxBin);
+		cmd.add("-v");
+		cmd.add(DECIMAL_FORMAT_VOLUME.format(volume));
         cmd.add(path);
         cmd.add("-e");
         cmd.add("signed-integer");
@@ -300,11 +304,9 @@ public class SoxController {
 		cmd.add(soxBin);
 		cmd.add("-m");
 
-		DecimalFormat df = new DecimalFormat("#.#");
-		
 		for(MediaDesc file : files) {
 			cmd.add("-v");
-			cmd.add(df.format(file.audioVolume));
+			cmd.add(DECIMAL_FORMAT_VOLUME.format(file.audioVolume));
 			cmd.add(file.path);
 		}
 		
@@ -337,11 +339,9 @@ public class SoxController {
 		ArrayList<String> cmd = new ArrayList<String>();
 		cmd.add(soxBin);
 
-		DecimalFormat df = new DecimalFormat("#.#");
-		
 		for(MediaDesc file : files) {
 			cmd.add("-v");
-			cmd.add(df.format(file.audioVolume));
+			cmd.add(DECIMAL_FORMAT_VOLUME.format(file.audioVolume));
 			cmd.add(file.path);
 		}
 		
@@ -368,13 +368,12 @@ public class SoxController {
 	 * 	hh:mm:ss:ss.frac
 	 * @param seconds
 	 */
-	/*
 	public String formatTimePeriod(double seconds) {
 	
 		long milliTime = (long)(seconds * 100f);
 		Date dateTime = new Date(milliTime);
 		return String.format(Locale.US, "%s:%s.%s", dateTime.getHours(),dateTime.getMinutes(),dateTime.getSeconds());
-	}*/
+	}
 
 	public int execSox(List<String> cmd, ShellCallback sc) throws IOException,
 			InterruptedException {
