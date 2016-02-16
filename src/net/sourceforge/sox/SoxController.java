@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -30,7 +31,8 @@ public class SoxController {
 	private ShellCallback callback;
 
 
-	public final static DecimalFormat DECIMAL_FORMAT_VOLUME = new DecimalFormat("#.#");
+	public NumberFormat DECIMAL_FORMAT_VOLUME;
+
 
 
 	public SoxController(Context _context, ShellCallback _callback) throws FileNotFoundException, IOException {
@@ -45,6 +47,9 @@ public class SoxController {
 		}
 
 		soxBin = new File(fileBinDir,"sox").getCanonicalPath();
+
+		DECIMAL_FORMAT_VOLUME = NumberFormat.getInstance(Locale.US);
+		DECIMAL_FORMAT_VOLUME.setMaximumFractionDigits(1);
 
 	}
 
@@ -309,7 +314,7 @@ public class SoxController {
 			cmd.add(DECIMAL_FORMAT_VOLUME.format(file.audioVolume));
 			cmd.add(file.path);
 		}
-		
+
 		cmd.add(outFile.path);
 
 		try {
@@ -468,4 +473,21 @@ public class SoxController {
 	static String formatDouble(double f) {
 	    return String.format(Locale.US, "%.8f", f).substring(0, 8);  // this will fail if clip longer than 31 years
 	}
+
+    /*
+     * There is a bug in sox on android where if you have more than 9 digits
+     * total on either side of the decimal, trimming fails. presumably other
+     * functions will fail too
+     *
+     * 1234.5678   this is fine
+     * 1234.56789  fails
+     * 1.2345678   this is fine
+     * 1.23456789  fails
+     *
+     */
+    static String formatVolume(float f) {
+        return String.format(Locale.US, "%.1f", f);  // this will fail if clip longer than 31 years
+    }
+
+
 }
