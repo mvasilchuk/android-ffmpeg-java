@@ -51,10 +51,6 @@ public class BinaryInstaller  {
 		is = context.getResources().openRawResource(R.raw.ffmpeg);			
 		outFile = new File(installFolder, "ffmpeg");
 		streamToFile(is, outFile, false, false, "700");
-		
-		is = context.getResources().openRawResource(R.raw.sox);
-		outFile = new File(installFolder, "sox");
-		streamToFile(is, outFile, false, false, "700");
 	
 		return true;
 	}
