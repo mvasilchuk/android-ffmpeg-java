@@ -593,6 +593,46 @@ out.avi – create this output file. Change it as you like, for example using an
 		
 		return result;
 	}
+
+	public MediaDesc shrinkMP4Stream (MediaDesc mediaIn, String outPath, ShellCallback sc) throws Exception
+        {
+                ArrayList<String> cmd = new ArrayList<String>();
+
+                MediaDesc mediaOut = new MediaDesc();
+                mediaOut.path = outPath;
+
+                String mediaPath = new File(mediaIn.path).getCanonicalPath();
+
+                cmd = new ArrayList<String>();
+
+                cmd.add(ffmpegBin);
+                cmd.add("-y");
+
+                cmd.add("-i");
+                cmd.add(mediaPath);
+
+                cmd.add("-vf");
+                cmd.add("scale=-2:320");
+
+                cmd.add("-c:v");
+                cmd.add("libx264");
+
+                cmd.add("-b:v");
+                cmd.add("1000k");
+
+                cmd.add("-c:a");
+                cmd.add("copy");
+
+                File fileOut = new File(mediaOut.path);
+                mediaOut.path = fileOut.getCanonicalPath();
+
+                cmd.add(mediaOut.path);
+
+                execFFMPEG(cmd, sc);
+
+                return mediaOut;
+        }
+
 	
 	//based on this gist: https://gist.github.com/3757344
 	//ffmpeg -i input1.mp4 -vcodec copy -vbsf h264_mp4toannexb -acodec copy part1.ts
